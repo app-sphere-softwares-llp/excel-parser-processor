@@ -17,6 +17,21 @@ const _resetProcessData = () => {
   erroneousItems.length = 0;
 };
 
+// Custom Validator Object
+const validators = {
+  // Name: { isRequired: true, minLength: 7, maxLength: 15 },
+  //  Gender: { isRequired: true }
+  ApplicationName: { isRequired: true, minLength: 1 },
+  ApplicationDescription: { isRequired: true, minLength: 1 },
+  HostName: { isRequired: false, minLength: 0 },
+  FunctionalUse: { isRequired: true, minLength: 1 },
+  BusinessProcess: { isRequired: true, minLength: 1 },
+  ProjectId: { isRequired: false, minLength: 0 },
+  IMRStatus: { isRequired: false, minLength: 0 },
+  ParticipantName: { isRequired: false, minLength: 0 }
+};
+
+
 const processItem = async (item, outputPath) => {
 
   const [ itemUrl, newName, subFolderName ] = item;
@@ -104,29 +119,51 @@ const processItems = async (rowItems, outputPath, win) => {
   logFileStream.end();
 };
 
+// function which will read excel and match it with Validator Object
 export const processFile = async (filePath, outputPath, browserWindow) => {
 
   _resetProcessData();
-
+  
   const workSheetsFromFile = xlsx.parse(filePath);
-  const dataRows = workSheetsFromFile.flatMap(page => page.data).filter(item => item.length);
+  const dataRows = workSheetsFromFile.flatMap(page => page.data);
+  const columns = dataRows.shift();
+  const missingColumns = areAllColumnsThere(columns);
+  
   const validRows = dataRows.filter(row => row.some(text => isUrl(text)));
-
+  
   incompatibleItems = dataRows.filter(row => !row.some(text => isUrl(text)));
-
+  
   initialItemsLength = validRows.length;
-
+  
   if (initialItemsLength) {
-    browserWindow.webContents.send('main-message', {
-      type: 'process-started'
-    });
-
-    await processItems(validRows, outputPath, browserWindow);
+  browserWindow.webContents.send('main-message', {
+  type: 'process-started'
+  });
+  
+  await processItems(validRows, outputPath, browserWindow);
   } else {
-    browserWindow.webContents.send('main-message', {
-      type: 'file-error',
-      data: 'No item to process'
-    });
+  browserWindow.webContents.send('main-message', {
+  type: 'file-error',
+  data: ' These are the missing columns : ' + missingColumns.join(',')
+  });
+  }
+  
+  };
+  
+  
+  export const areAllColumnsThere = (columns) => {
+  const requiredColumns = Object.keys(validators).filter(
+  key => validators[key].isRequired
+  );
+  
+  const missingColumns = [];
+  requiredColumns.forEach(col => {
+  if (!columns.includes(col)) {
+  missingColumns.push(col);
+  }
+  });
+  
+  return missingColumns;
   }
 
-};
+
