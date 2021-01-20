@@ -1,0 +1,11 @@
+
+{
+	"ApplicationName": { "isRequired": true, "minLength": 10 },
+  "ApplicationDescription": { "isRequired": true, "minLength": 10 },
+  "HostName": { "isRequired": false, "minLength": 0 },
+  "FunctionalUse": { "isRequired": true, "minLength": 1 },
+  "BusinessProcess": { "isRequired": true, "minLength": 1 },
+  "ProjectId": { "isRequired": false, "minLength": 0 },
+  "IMRStatus": { "isRequired": false, "minLength": 0 },
+  "ParticipantName": { "isRequired": false, "minLength": 0 }
+} 

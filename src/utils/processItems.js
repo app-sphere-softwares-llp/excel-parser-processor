@@ -4,6 +4,9 @@ import fetch from 'electron-fetch';
 import { URL } from 'url';
 import xlsx from 'node-xlsx';
 import isUrl from 'is-url';
+var jsonData = require('./../../validation.json');
+
+var data1 = require('./../../data.json');
 
 let initialItemsLength;
 let processedItemsCount;
@@ -18,19 +21,19 @@ const _resetProcessData = () => {
 };
 
 // Custom Validator Object
-const validators = {
-  // Name: { isRequired: true, minLength: 7, maxLength: 15 },
-  //  Gender: { isRequired: true }
-  ApplicationName: { isRequired: true, minLength: 1 },
-  ApplicationDescription: { isRequired: true, minLength: 1 },
-  HostName: { isRequired: false, minLength: 0 },
-  FunctionalUse: { isRequired: true, minLength: 1 },
-  BusinessProcess: { isRequired: true, minLength: 1 },
-  ProjectId: { isRequired: false, minLength: 0 },
-  IMRStatus: { isRequired: false, minLength: 0 },
-  ParticipantName: { isRequired: false, minLength: 0 }
-};
-
+// const validators = {
+//   // Name: { isRequired: true, minLength: 7, maxLength: 15 },
+//   //  Gender: { isRequired: true }
+//   ApplicationName: { isRequired: true, minLength: 1 },
+//   ApplicationDescription: { isRequired: true, minLength: 1 },
+//   HostName: { isRequired: false, minLength: 0 },
+//   FunctionalUse: { isRequired: true, minLength: 1 },
+//   BusinessProcess: { isRequired: true, minLength: 1 },
+//   ProjectId: { isRequired: false, minLength: 0 },
+//   IMRStatus: { isRequired: false, minLength: 0 },
+//   ParticipantName: { isRequired: false, minLength: 0 }
+// };
+const validators = data1;
 
 const processItem = async (item, outputPath) => {
 
@@ -128,6 +131,7 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
   const dataRows = workSheetsFromFile.flatMap(page => page.data);
   const columns = dataRows.shift();
   const missingColumns = areAllColumnsThere(columns);
+  const invalidlength = isRowValid(dataRows, columns);
   
   const validRows = dataRows.filter(row => row.some(text => isUrl(text)));
   
@@ -144,7 +148,8 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
   } else {
   browserWindow.webContents.send('main-message', {
   type: 'file-error',
-  data: ' These are the missing columns : ' + missingColumns.join(',')
+  data:  ' These are the missing columns : ' + missingColumns.join(',') + 'These are invalid length values :' +  invalidlength.join(',') +
+  '. Please enter valid excel file.'
   });
   }
   
@@ -167,3 +172,23 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
   }
 
 
+  export const isRowValid = (dataRows, columns) => {
+
+    const invalidlength = [];
+    const invalidIndex = [];
+    //var c = dataRows.shift();
+    dataRows.forEach(d => {
+      d.forEach((k, j) => {
+        const vc = validators[columns[j]];
+        if (vc) {
+          if (vc.minLength > k.length) {
+            invalidlength.push(k);
+            // console.log(j);
+            // invalidIndex.push(j);
+          }
+        }
+  
+      })
+    })
+    return invalidlength;
+  }
