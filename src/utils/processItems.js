@@ -1,12 +1,13 @@
-import path from 'path';
-import { createWriteStream, mkdir } from 'fs';
-import fetch from 'electron-fetch';
-import { URL } from 'url';
-import xlsx from 'node-xlsx';
-import isUrl from 'is-url';
-var jsonData = require('./../../validation.json');
+import path from "path";
+import { createWriteStream, mkdir } from "fs";
+import fetch from "electron-fetch";
+import { URL } from "url";
+import xlsx from "node-xlsx";
+import isUrl from "is-url";
 
-var data1 = require('./../../data.json');
+const validators = require("./../../validation.json");
+
+// var data1 = require('./../../data.json');
 
 let initialItemsLength;
 let processedItemsCount;
@@ -20,102 +21,101 @@ const _resetProcessData = () => {
   erroneousItems.length = 0;
 };
 
-// Custom Validator Object
-// const validators = {
-//   // Name: { isRequired: true, minLength: 7, maxLength: 15 },
-//   //  Gender: { isRequired: true }
-//   ApplicationName: { isRequired: true, minLength: 1 },
-//   ApplicationDescription: { isRequired: true, minLength: 1 },
-//   HostName: { isRequired: false, minLength: 0 },
-//   FunctionalUse: { isRequired: true, minLength: 1 },
-//   BusinessProcess: { isRequired: true, minLength: 1 },
-//   ProjectId: { isRequired: false, minLength: 0 },
-//   IMRStatus: { isRequired: false, minLength: 0 },
-//   ParticipantName: { isRequired: false, minLength: 0 }
-// };
-const validators = data1;
+// const validators = data1;
 
 const processItem = async (item, outputPath) => {
-
-  const [ itemUrl, newName, subFolderName ] = item;
+  const [itemUrl, newName, subFolderName] = item;
   const url = new URL(itemUrl);
-  const itemName = newName ? `${newName}${path.extname(url.pathname)}` : path.basename(url.pathname);
+  const itemName = newName
+    ? `${newName}${path.extname(url.pathname)}`
+    : path.basename(url.pathname);
 
   const response = await fetch(itemUrl);
 
   if (response.ok) {
     if (subFolderName) {
-      await mkdir(`${outputPath}/${subFolderName}`, { recursive: true }, () => {});
+      await mkdir(
+        `${outputPath}/${subFolderName}`,
+        { recursive: true },
+        () => {}
+      );
     }
 
-    const dest = createWriteStream(path.join(outputPath, subFolderName ? subFolderName : '', itemName));
+    const dest = createWriteStream(
+      path.join(outputPath, subFolderName ? subFolderName : "", itemName)
+    );
 
     response.body.pipe(dest);
   } else {
     throw {
       status: response.status,
       statusText: response.statusText,
-      itemInfo: url.href
-    }
+      itemInfo: url.href,
+    };
   }
-
 };
 
 const processItems = async (rowItems, outputPath, win) => {
   const itemsLength = rowItems.length;
 
   for (let i = 0; i < itemsLength; i += 20) {
-    const requests = rowItems.slice(i, i + 20).map(item => {
+    const requests = rowItems.slice(i, i + 20).map((item) => {
       return processItem(item, outputPath)
         .then(() => {
-          const unprocessedItems = erroneousItems.length + incompatibleItems.length;
-          const percentage = Math.abs(++processedItemsCount / (initialItemsLength - unprocessedItems)) * 100;
+          const unprocessedItems =
+            erroneousItems.length + incompatibleItems.length;
+          const percentage =
+            Math.abs(
+              ++processedItemsCount / (initialItemsLength - unprocessedItems)
+            ) * 100;
 
-          win.webContents.send('main-message', {
-            type: 'progress',
-            data: percentage
+          win.webContents.send("main-message", {
+            type: "progress",
+            data: percentage,
           });
         })
-        .catch(err => {
+        .catch((err) => {
           erroneousItems.push(err.itemInfo);
 
-          win.webContents.send('main-message', {
-            type: 'process-error',
-            data: err
+          win.webContents.send("main-message", {
+            type: "process-error",
+            data: err,
           });
         });
     });
 
-    await Promise.all(requests)
-      .catch(e => console.log(`Error processing for the batch ${i} - ${e}`));
+    await Promise.all(requests).catch((e) =>
+      console.log(`Error processing for the batch ${i} - ${e}`)
+    );
   }
 
-  const logFileStream = createWriteStream(path.join(
-    outputPath,
-    `excel-parser-processor-log${Date.now()}.txt`)
+  const logFileStream = createWriteStream(
+    path.join(outputPath, `excel-parser-processor-log${Date.now()}.txt`)
   );
 
   logFileStream.write(
     [
       `Processed Items Count: ${processedItemsCount}`,
-      '-----',
+      "-----",
       `Incompatible Items Count: ${incompatibleItems.length};`,
-      `${incompatibleItems.join('\r\n')}`,
-      '-----',
+      `${incompatibleItems.join("\r\n")}`,
+      "-----",
       `Erroneous Items Count: ${erroneousItems.length};`,
-      `${erroneousItems.join('\r\n')}`,
-      '-----'
-    ].join('\r\n'), 'utf8');
+      `${erroneousItems.join("\r\n")}`,
+      "-----",
+    ].join("\r\n"),
+    "utf8"
+  );
 
-  logFileStream.on('finish', () => {
-    win.webContents.send('main-message', {
-      type: 'process-completed',
+  logFileStream.on("finish", () => {
+    win.webContents.send("main-message", {
+      type: "process-completed",
       data: {
         processedItemsCount,
         incompatibleItems,
         erroneousItems,
-        logFilePath: logFileStream.path
-      }
+        logFilePath: logFileStream.path,
+      },
     });
   });
 
@@ -124,71 +124,124 @@ const processItems = async (rowItems, outputPath, win) => {
 
 // function which will read excel and match it with Validator Object
 export const processFile = async (filePath, outputPath, browserWindow) => {
-
   _resetProcessData();
-  
+
+  browserWindow.webContents.send("main-message", {
+    type: "process-started",
+  });
+
   const workSheetsFromFile = xlsx.parse(filePath);
-  const dataRows = workSheetsFromFile.flatMap(page => page.data);
+  const dataRows = workSheetsFromFile.flatMap((page) => page.data);
   const columns = dataRows.shift();
   const missingColumns = areAllColumnsThere(columns);
-  const invalidlength = isRowValid(dataRows, columns);
-  
-  const validRows = dataRows.filter(row => row.some(text => isUrl(text)));
-  
-  incompatibleItems = dataRows.filter(row => !row.some(text => isUrl(text)));
-  
-  initialItemsLength = validRows.length;
-  
-  if (initialItemsLength) {
-  browserWindow.webContents.send('main-message', {
-  type: 'process-started'
-  });
-  
-  await processItems(validRows, outputPath, browserWindow);
+  const invalidlengthColumns = isRowValid(dataRows, columns);
+
+  // const validRows = dataRows.filter((row) => row.some((text) => isUrl(text)));
+
+  // incompatibleItems = dataRows.filter(
+  //   (row) => !row.some((text) => isUrl(text))
+  // );
+
+  // initialItemsLength = validRows.length;
+
+  if (missingColumns.length) {
+    browserWindow.webContents.send("main-message", {
+      type: "file-error",
+      data: {
+        title: "These are the missing columns :",
+        message: missingColumns.join(", "),
+      },
+    });
+
+    // win.webContents.send("main-message", {
+    //   type: "process-error",
+    //   data: '',
+    // });
+
+  } else if (invalidlengthColumns.length) {
+    const messages = invalidlengthColumns.map(column => {
+      return constructErrorString(column);
+    });
+
+    browserWindow.webContents.send("main-message", {
+      type: "file-error",
+      data: {
+        title: "These are invalid length values :",
+        message: messages.join('\n'),
+      },
+    });
+
+    // win.webContents.send("main-message", {
+    //   type: "process-error",
+    //   data: err,
+    // });
   } else {
-  browserWindow.webContents.send('main-message', {
-  type: 'file-error',
-  data:  ' These are the missing columns : ' + missingColumns.join(',') + 'These are invalid length values :' +  invalidlength.join(',') +
-  '. Please enter valid excel file.'
-  });
+    win.webContents.send("main-message", {
+      type: "process-completed",
+      data: {
+        processedItemsCount,
+        incompatibleItems,
+        erroneousItems,
+        logFilePath: logFileStream.path,
+      },
+    });
   }
-  
-  };
-  
-  
-  export const areAllColumnsThere = (columns) => {
+
+  // if (initialItemsLength) {
+  //   browserWindow.webContents.send('main-message', {
+  //     type: 'process-started'
+  //   });
+
+  //   await processItems(validRows, outputPath, browserWindow);
+  // } else {
+  //   browserWindow.webContents.send('main-message', {
+  //     type: 'file-error',
+  //     data: ' These are the missing columns : ' + missingColumns.join(',') + 'These are invalid length values :' + invalidlength.join(',') +
+  //       '. Please enter valid excel file.'
+  //   });
+  // }
+};
+
+export const areAllColumnsThere = (columns) => {
   const requiredColumns = Object.keys(validators).filter(
-  key => validators[key].isRequired
+    (key) => validators[key].isRequired
   );
-  
+
   const missingColumns = [];
-  requiredColumns.forEach(col => {
-  if (!columns.includes(col)) {
-  missingColumns.push(col);
-  }
+  requiredColumns.forEach((col) => {
+    if (!columns.includes(col)) {
+      missingColumns.push(col);
+    }
   });
-  
+
   return missingColumns;
-  }
+};
 
+export const isRowValid = (dataRows, columns) => {
+  const invalidlength = [];
 
-  export const isRowValid = (dataRows, columns) => {
-
-    const invalidlength = [];
-    const invalidIndex = [];
-    //var c = dataRows.shift();
-    dataRows.forEach(d => {
-      d.forEach((k, j) => {
-        const vc = validators[columns[j]];
-        if (vc) {
-          if (vc.minLength > k.length) {
-            invalidlength.push(k);
-            // console.log(j);
-            // invalidIndex.push(j);
+  dataRows.forEach((dataRow, rowIndex) => {
+    dataRow.forEach((dataRowVal, index) => {
+      const validatorColumn = validators[columns[index]];
+      if (validatorColumn) {
+        if (validatorColumn.minLength) {
+          if (validatorColumn.minLength > dataRowVal.length) {
+            invalidlength.push({ column: columns[index], requiredLength: validatorColumn.minLength, actualLength: dataRowVal.length, row: rowIndex, value: dataRowVal, validator: 'Min Length' });
           }
         }
-  
-      })
-    })
-    return invalidlength;
-  }
+
+        if (validatorColumn.maxLength) {
+          if (dataRowVal.length > validatorColumn.maxLength) {
+            invalidlength.push({ column: columns[index], requiredLength: validatorColumn.maxLength, actualLength: dataRowVal.length, row: rowIndex, value: dataRowVal, validator: 'Max Length' });
+          }
+        }
+      }
+    });
+  });
+  return invalidlength;
+};
+
+
+const constructErrorString = (data) => {
+  return `${data.validator} error found at, row no ${data.row} for column ${data.column}. required length is ${data.requiredLength} and got ${data.actualLength} (passed value :- ${data.value})`;
+};

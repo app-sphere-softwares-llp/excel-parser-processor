@@ -9,6 +9,7 @@
     "build-renderer": "cross-env NODE_ENV=production PROCESS_TYPE=renderer webpack --config webpack.prod.js",
     "build": "npm-run-all build-main build-renderer",
     "generate-icons": "electron-icon-maker --input=./build-assets/icon.png --output=./build/",
+    "start-main-dev": "cross-env NODE_ENV=development PROCESS_TYPE=main webpack --config webpack.dev.js",
     "start-renderer-dev": "cross-env NODE_ENV=development PROCESS_TYPE=renderer webpack --config webpack.dev.js",
     "start": "electron ./dist/index.bundle.js",
     "test": "jest",

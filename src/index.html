@@ -1,57 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src	https://fonts.gstatic.com;">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-</head>
-<body>
-  <div class="app">
-    <div class="app__header">
-      <div class="app__header__logo">
-        <img src="images/logo1.png" width="90" height="64" alt="Excel Processor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src	https://fonts.gstatic.com;"
+    />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <div class="app">
+      <div class="app__header">
+        <div class="app__header__logo">
+          <img
+            src="images/logo1.png"
+            width="90"
+            height="64"
+            alt="Excel Processor"
+          />
+        </div>
+        <h1 class="app__title">APART By Aspire</h1>
+        <p class="app__description">
+          Select the excel file, and the output folder, Excel Processor will
+          handle the rest.
+        </p>
       </div>
-      <h1 class="app__title">
-        APART By Aspire 
-      </h1>
-      <p class="app__description">
-        Select the excel file, and the output folder, Excel Processor will handle the rest.
-      </p>
     </div>
-  </div>
-  <div class="wrapper">
-    <div class="drop">
-      <div class="cont">
-        <i class="fas fa-cloud-upload-alt fa-5x"></i>
-        <div class="tit">
-          Drag & Drop
+    <div class="wrapper">
+      <div class="drop">
+        <div class="cont">
+          <i class="fas fa-cloud-upload-alt fa-5x"></i>
+          <div class="tit">Drag & Drop</div>
+          <div class="desc">your excel files, or</div>
+          <div class="browse">click here to browse</div>
         </div>
-        <div class="desc">
-          your excel files, or
-        </div>
-        <div class="browse">
-          click here to browse
-        </div>
+        <input id="files" name="files[]" type="file" />
       </div>
-      <input id="files" name="files[]" type="file" />
     </div>
-  </div>
-  <div class="progress">
-    <b class="progress__bar">
-    <span class="progress__text">
-      Progress: <em>0%</em>
-    </span>
-    </b>
-  </div>
-  <div class="error-toast">
-    <i class="fas fa-exclamation-circle fa-4x"></i>
-    <span class="text"></span>
-  </div>
-  <div class="notification-toast">
-    <i class="fas fa-check-circle fa-4x"></i>
-    <span class="text"></span>
-  </div>
-</body>
+    <div class="progress">
+      <b class="progress__bar">
+        <span class="progress__text"> Progress: <em>0%</em> </span>
+      </b>
+    </div>
+    <div class="error-toast">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-circle fa-4x"></i>
+        <span class="title"></span>
+      </div>
+
+      <div class="error-content">
+        <span class="text"></span>
+      </div>
+    </div>
+    
+    <div class="notification-toast">
+      <i class="fas fa-check-circle fa-4x"></i>
+      <span class="text"></span>
+    </div>
+  </body>
 </html>
