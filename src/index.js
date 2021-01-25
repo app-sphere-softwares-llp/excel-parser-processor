@@ -16,7 +16,8 @@ const createWindow = () => {
       contextIsolation: true,
       enableRemoteModule: false,
       nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: false
     }
   });
 
@@ -33,7 +34,7 @@ const createWindow = () => {
 
   // Open the DevTools during development.
   if(process.env.NODE_ENV === 'development') {
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
   }
 
   // Emitted when the window is closed.
@@ -44,7 +45,8 @@ const createWindow = () => {
 
 app.on('ready', () => {
   ipcMain.on('file-dropped', (event, filePath) => {
-    showOpenDialog(win, filePath, processFile);
+    processFile(filePath, '', win);
+    // showOpenDialog(win, filePath, processFile);
   });
 
   createWindow();
