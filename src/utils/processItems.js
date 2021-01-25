@@ -158,7 +158,7 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
   
   export const areAllColumnsThere = (columns) => {
   const requiredColumns = Object.keys(validators).filter(
-  key => validators[key].isRequired
+  key => validators[ key].isRequired
   );
   
   const missingColumns = [];
