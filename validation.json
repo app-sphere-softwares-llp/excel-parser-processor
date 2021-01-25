@@ -12,15 +12,15 @@
     "isRequired": false
   },
   "FunctionalUser": {
-    "isRequired": false,
+    "isRequired": true,
     "minLength": 1
   },
   "BusinessProcess": {
-    "isRequired": false,
+    "isRequired": true,
     "minLength": 1
   },
   "ProjectId": {
-    "isRequired": false
+    "isRequired": true
   },
   "IMRStatus": {
     "isRequired": false
@@ -31,7 +31,7 @@
   "ApplicationHosting": {
     "isRequired": false
   },
-  "HsotingServiceProvider": {
+  "HostingServiceProvider": {
     "isRequired": false
   },
   "CloudType": {
@@ -41,10 +41,10 @@
     "isRequired": false
   },
   "HardwarePlatform": {
-    "isRequired": false
+    "isRequired": true
   },
   "Os": {
-    "isRequired": false
+    "isRequired": true
   },
   "ServerId": {
     "isRequired": false
@@ -65,7 +65,7 @@
     "isRequired": false
   },
   "Database": {
-    "isRequired": false
+    "isRequired": true
   },
   "DatabaseHost": {
     "isRequired": false
@@ -80,13 +80,13 @@
     "isRequired": false
   },
   "BusinessOwner": {
-    "isRequired": false
+    "isRequired": true
   },
   "ITOwner": {
-    "isRequired": false
+    "isRequired": true
   },
   "OwningSBU": {
-    "isRequired": false
+    "isRequired": true
   },
   "EntitiesUsing": {
     "isRequired": false
@@ -95,22 +95,25 @@
     "isRequired": false
   },
   "Source": {
-    "isRequired": false
+    "isRequired": true
   },
   "Vendor": {
-    "isRequired": false
+    "isRequired": true
   },
-  "Vision": {
-    "isRequired": false
+  "Version": {
+    "isRequired": true
   },
   "LevelOfCustomization": {
-    "isRequired": false
+    "isRequired": true
   },
   "ApplicationLanguages": {
-    "isRequired": false
+    "isRequired": true
   },
-  "Interface": {
-    "isRequired": false
+  "Interfaces": {
+    "isRequired": true
+  },
+  "TypesOfInterfaces":{
+      "isReuired":false
   },
   "NamedUser": {
     "isRequired": false
@@ -122,27 +125,46 @@
     "isRequired": false
   },
   "DateOfInitialDeploymentOrPurchase": {
-    "isRequired": false
+    "isRequired": true
   },
   "TotalYearsOfUse": {
-    "isRequired": false
+    "isRequired": true
   },
   "Managed": {
-    "isRequired": false
+    "isRequired": true
   },
   "ApplicationSize": {
-    "isRequired": false
+    "isRequired": true
   },
   "CurrentLocation": {
     "isRequired": false
   },
   "ApplicationStrategyStatus": {
-    "isRequired": false
+    "isRequired": true
   },
   "DiasterRecoveryCritically": {
     "isRequired": false
   },
   "AdditionalComments": {
     "isRequired": false
+  },
+  "NameOfCloudPlatformUtilized":{
+    "isRequired":false
+  },
+  "isTheApplicationCloudReady":{
+    "isRequired":false
+  },
+  "CloudComponentsLeveragedByApplication":{
+    "isRequired":false
+  },
+  "ArchitectureSupportByApplication":{
+    "isRequired":false
+  },
+  "MultiRegionReplicationFunctionality":
+  {
+    "isRequired":false
+  },
+  "PlanningOfMigrationToCloud":{
+    "isRequired":false
   }
 }
