@@ -144,12 +144,19 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
 
   // initialItemsLength = validRows.length;
 
-  if (missingColumns.length) {
+  if (missingColumns.length && invalidlengthColumns.length) {
+
+    const messages = invalidlengthColumns.map(column => {
+      return constructErrorString(column);
+    });
+
     browserWindow.webContents.send("main-message", {
       type: "file-error",
-      data: {
-        title: "These are the missing columns :",
-        message: missingColumns.join(", "),
+      data:{
+        title: "These are the missing columns and invalid length values respectively:",
+        message: missingColumns.join(", ") + (".") + (" \n ") + messages.join('\n') ,
+        //title: "These are invalid length values :",
+        //message: messages.join('\n'),
       },
     });
 
@@ -158,24 +165,26 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
     //   data: '',
     // });
 
-  } else if (invalidlengthColumns.length) {
-    const messages = invalidlengthColumns.map(column => {
-      return constructErrorString(column);
-    });
+  } 
+  // else if (invalidlengthColumns.length) {
+  //   const messages = invalidlengthColumns.map(column => {
+  //     return constructErrorString(column);
+  //   });
 
-    browserWindow.webContents.send("main-message", {
-      type: "file-error",
-      data: {
-        title: "These are invalid length values :",
-        message: messages.join('\n'),
-      },
-    });
+  //   browserWindow.webContents.send("main-message", {
+  //     type: "file-error",
+  //     data: {
+  //       title: "These are invalid length values :",
+  //       message: messages.join('\n'),
+  //     },
+  //   });
 
-    // win.webContents.send("main-message", {
-    //   type: "process-error",
-    //   data: err,
-    // });
-  } else {
+  //   // win.webContents.send("main-message", {
+  //   //   type: "process-error",
+  //   //   data: err,
+  //   // });
+  // } 
+  else {
     win.webContents.send("main-message", {
       type: "process-completed",
       data: {

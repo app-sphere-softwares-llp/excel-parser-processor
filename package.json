@@ -108,7 +108,7 @@
     "win": {
       "target": [
         {
-          "target": "nsis-web",
+          "target": "msi",
           "arch": [
             "x64",
             "ia32"
@@ -119,7 +119,7 @@
   },
   "publish": {
     "provider": "github",
-    "owner": "Burak Targaç"
+    "owner": "AppSphere"
   },
   "collective": {
     "type": "opencollective",
