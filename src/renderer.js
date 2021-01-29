@@ -117,22 +117,21 @@ const processStartHandler = () => {
 
 const progressHandler = (percentage) => update(percentage);
 
-const processCompletedHandler = ({
-  processedItemsCount,
-  incompatibleItems,
-  erroneousItems,
-  logFilePath,
-}) => {
+const processCompletedHandler = (data) => {
+  // $(notificationArea)
+  //   .find(".text")
+  //   .text(
+  //     [
+  //       `${processedItemsCount} item(s) successfully processed,`,
+  //       `${incompatibleItems.length} item(s) skipped,`,
+  //       `${erroneousItems.length} item(s) erroneous,`,
+  //       `Log file ${logFilePath} is written on disk.`,
+  //     ].join("\r\n")
+  //   );
+
   $(notificationArea)
     .find(".text")
-    .text(
-      [
-        `${processedItemsCount} item(s) successfully processed,`,
-        `${incompatibleItems.length} item(s) skipped,`,
-        `${erroneousItems.length} item(s) erroneous,`,
-        `Log file ${logFilePath} is written on disk.`,
-      ].join("\r\n")
-    );
+    .text('This excel seems valid');
 
   $(notificationArea).show().animate(
     {
@@ -189,6 +188,7 @@ const errorAreaClickHandler = () => {
       $(this).hide().find(".text").text("");
     }
   );
+  resetProcess();
 };
 
 const notificationAreaClickHandler = () => {

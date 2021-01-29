@@ -1,9 +1,8 @@
 import path from "path";
-import { createWriteStream, mkdir } from "fs";
+import {createWriteStream, mkdir} from "fs";
 import fetch from "electron-fetch";
-import { URL } from "url";
+import {URL} from "url";
 import xlsx from "node-xlsx";
-import isUrl from "is-url";
 
 const validators = require("./../../validation.json");
 
@@ -36,8 +35,9 @@ const processItem = async (item, outputPath) => {
     if (subFolderName) {
       await mkdir(
         `${outputPath}/${subFolderName}`,
-        { recursive: true },
-        () => {}
+        {recursive: true},
+        () => {
+        }
       );
     }
 
@@ -144,55 +144,26 @@ export const processFile = async (filePath, outputPath, browserWindow) => {
 
   // initialItemsLength = validRows.length;
 
-  if (missingColumns.length && invalidlengthColumns.length) {
+  if (missingColumns.length || invalidlengthColumns.length) {
 
+    const missingColumnsMessages = missingColumns.map((column) => {
+      return `${column} is missing in the excel`;
+    });
     const messages = invalidlengthColumns.map(column => {
       return constructErrorString(column);
     });
 
     browserWindow.webContents.send("main-message", {
       type: "file-error",
-      data:{
+      data: {
         title: "These are the missing columns and invalid length values respectively:",
-        message: missingColumns.join(", ") + (".") + (" \n ") + messages.join('\n') ,
-        //title: "These are invalid length values :",
-        //message: messages.join('\n'),
+        message: missingColumnsMessages.join(" \n ") + (".") + (" \n ") + messages.join('\n'),
       },
     });
-
-    // win.webContents.send("main-message", {
-    //   type: "process-error",
-    //   data: '',
-    // });
-
-  } 
-  // else if (invalidlengthColumns.length) {
-  //   const messages = invalidlengthColumns.map(column => {
-  //     return constructErrorString(column);
-  //   });
-
-  //   browserWindow.webContents.send("main-message", {
-  //     type: "file-error",
-  //     data: {
-  //       title: "These are invalid length values :",
-  //       message: messages.join('\n'),
-  //     },
-  //   });
-
-  //   // win.webContents.send("main-message", {
-  //   //   type: "process-error",
-  //   //   data: err,
-  //   // });
-  // } 
-  else {
+  } else {
     win.webContents.send("main-message", {
       type: "process-completed",
-      data: {
-        processedItemsCount,
-        incompatibleItems,
-        erroneousItems,
-        logFilePath: logFileStream.path,
-      },
+      data: {},
     });
   }
 
@@ -235,13 +206,27 @@ export const isRowValid = (dataRows, columns) => {
       if (validatorColumn) {
         if (validatorColumn.minLength) {
           if (validatorColumn.minLength > dataRowVal.length) {
-            invalidlength.push({ column: columns[index], requiredLength: validatorColumn.minLength, actualLength: dataRowVal.length, row: rowIndex, value: dataRowVal, validator: 'Min Length' });
+            invalidlength.push({
+              column: columns[index],
+              requiredLength: validatorColumn.minLength,
+              actualLength: dataRowVal.length,
+              row: rowIndex,
+              value: dataRowVal,
+              validator: 'Min Length'
+            });
           }
         }
 
         if (validatorColumn.maxLength) {
           if (dataRowVal.length > validatorColumn.maxLength) {
-            invalidlength.push({ column: columns[index], requiredLength: validatorColumn.maxLength, actualLength: dataRowVal.length, row: rowIndex, value: dataRowVal, validator: 'Max Length' });
+            invalidlength.push({
+              column: columns[index],
+              requiredLength: validatorColumn.maxLength,
+              actualLength: dataRowVal.length,
+              row: rowIndex,
+              value: dataRowVal,
+              validator: 'Max Length'
+            });
           }
         }
       }
